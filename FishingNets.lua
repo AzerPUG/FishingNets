@@ -6,14 +6,16 @@ if AZP.FishinNets == nil then AZP.FishinNets = {} end
 
 local EventFrame = CreateFrame("Frame")
 local AddOnLoaded, VarsLoaded = false, false
-
+local ZonesInWhichAddonIsActive = {2022, 2023, 2024, 2025, 2112}
 local FishingNetFrame = CreateFrame("Frame", nil, UIParent, "BasicFrameTemplateWithInset")
 local TimeSinceLastUpdate = 0
 local AllZoneFrames, AllLocFrames, AllStatusBars = {}, {}, {}
+local InRightZone = false
 
 function AZP.FishinNets.OnLoad()
     EventFrame:RegisterEvent("ADDON_LOADED")
     EventFrame:RegisterEvent("VARIABLES_LOADED")
+    EventFrame:RegisterEvent("ZONE_CHANGED")
     EventFrame:SetScript("OnEvent", function(...) AZP.FishinNets:OnEvent(...) end)
 
     FishingNetFrameHeight = 30
@@ -84,11 +86,19 @@ function AZP.FishinNets.OnLoad()
     end
 end
 
+function AZP.FishinNets:ZoneChanged()
+    CurrentZone = C_Map.GetBestMapForUnit("PLAYER")
+    InRightZone = tContains(ZonesInWhichAddonIsActive, CurrentZone)
+end
+
 function AZP.FishinNets:CheckTimers()
     for curZoneID, curZone in pairs(AZP.FishinNets.NetLocations) do
         for curLocID, curLocation in pairs(curZone) do
             for _, curNet in pairs(curLocation) do
-                local curTimerInfo = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID)
+                local curTimerInfo = nil
+                if InRightZone == true then
+                    curTimerInfo = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID)
+                end
                 if curTimerInfo == nil then
                     local curStatusBar = AllStatusBars[curNet.ID]
                     curStatusBar:SetValue(0)
@@ -120,6 +130,7 @@ function AZP.FishinNets:OnUpdate(Elapsed)
 end
 
 function AZP.FishinNets:VarsAndAddOnLoaded()
+    AZP.FishinNets:ZoneChanged()
     FishingNetFrame:SetScript("OnUpdate", function(_, ...) AZP.FishinNets:OnUpdate(...) end)
 end
 
@@ -139,6 +150,8 @@ function AZP.FishinNets:OnEvent(_, event, ...)
         else
             VarsLoaded = true
         end
+    elseif event == "ZONE_CHANGED" then
+        AZP.FishinNets:ZoneChanged()
     end
 end
 
