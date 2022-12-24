@@ -16,7 +16,8 @@ function AZP.FishinNets.OnLoad()
     EventFrame:RegisterEvent("VARIABLES_LOADED")
     EventFrame:SetScript("OnEvent", function(...) AZP.FishinNets:OnEvent(...) end)
 
-    FishingNetFrame:SetSize(350, 200)
+    FishingNetFrameHeight = 30
+    FishingNetFrame:SetSize(350, FishingNetFrameHeight)
     FishingNetFrame:SetPoint("CENTER", 600, 450)
     FishingNetFrame.TitleText:SetText(string.format("|cff00ffffAzerPUG's Fishing Nets - v%d|r", AZP.VersionControl["FishingNets"]))
 
@@ -26,10 +27,8 @@ function AZP.FishinNets.OnLoad()
         AllZoneFrames[curZoneID] = curZoneFrame
         if AZP.FishinNets.NetLocations[curZoneID - 1] == nil then  curZoneFrame:SetPoint("TOPLEFT", FishingNetFrame, "TOPLEFT", 0, -25)
         else curZoneFrame:SetPoint("TOPLEFT", AllZoneFrames[curZoneID - 1], "BOTTOMLEFT", 0, 0) end
-        -- curZoneFrame.Header = curZoneFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-        -- curZoneFrame.Header:SetText(AZP.FishinNets.ZoneNames[curZoneID])
-        -- curZoneFrame.Header:SetSize(FishingNetFrame:GetWidth(), 20)
-        -- curZoneFrame.Header:SetPoint("TOPLEFT", 0, 0)
+
+        FishingNetFrameHeight = FishingNetFrameHeight + 22
 
         for curLocID, curLocation in pairs(curZone) do
             local curLocFrame = CreateFrame("Frame", nil, curZoneFrame)
@@ -43,6 +42,7 @@ function AZP.FishinNets.OnLoad()
             curLocFrame.Header:SetPoint("TOPLEFT", 0, 0)
 
             curZoneFrameHeight = curZoneFrameHeight + 22
+            FishingNetFrameHeight = FishingNetFrameHeight + 22
 
             local i = 1
             for _, curNet in pairs(curLocation) do
@@ -75,6 +75,9 @@ function AZP.FishinNets.OnLoad()
                 curLocFrameHeight = curLocFrameHeight + 22
                 curLocFrame:SetSize(FishingNetFrame:GetWidth(), curLocFrameHeight)
 
+                FishingNetFrameHeight = FishingNetFrameHeight + 22
+                FishingNetFrame:SetSize(FishingNetFrame:GetWidth(), FishingNetFrameHeight)
+
                 i = i + 1
             end
         end
@@ -85,16 +88,23 @@ function AZP.FishinNets:CheckTimers()
     for curZoneID, curZone in pairs(AZP.FishinNets.NetLocations) do
         for curLocID, curLocation in pairs(curZone) do
             for _, curNet in pairs(curLocation) do
-                local TimeLeft = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID).barValue
-                local curStatusBar = AllStatusBars[curNet.ID]
-                curStatusBar:SetValue(TimeLeft)
+                local curTimerInfo = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID)
+                if curTimerInfo == nil then
+                    local curStatusBar = AllStatusBars[curNet.ID]
+                    curStatusBar:SetValue(0)
+                    curStatusBar.Time:SetText("Data Unavailable")
+                else
+                    local TimeLeft = curTimerInfo.barValue
+                    local curStatusBar = AllStatusBars[curNet.ID]
+                    curStatusBar:SetValue(TimeLeft)
 
-                local curHours = math.floor(TimeLeft / 3600)
-                local curMinutes = math.floor((TimeLeft - (curHours * 3600)) / 60)
-                local curSeconds = math.floor(TimeLeft - (curHours * 3600) - (curMinutes * 60))
+                    local curHours = math.floor(TimeLeft / 3600)
+                    local curMinutes = math.floor((TimeLeft - (curHours * 3600)) / 60)
+                    local curSeconds = math.floor(TimeLeft - (curHours * 3600) - (curMinutes * 60))
 
-                local curTimeText = string.format("%02d:%02d:%02d", curHours, curMinutes, curSeconds)
-                curStatusBar.Time:SetText(curTimeText)
+                    local curTimeText = string.format("%02d:%02d:%02d", curHours, curMinutes, curSeconds)
+                    curStatusBar.Time:SetText(curTimeText)
+                end
             end
         end
     end
