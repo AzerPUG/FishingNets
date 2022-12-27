@@ -91,20 +91,33 @@ function AZP.FishinNets:ZoneChanged()
     InRightZone = tContains(ZonesInWhichAddonIsActive, CurrentZone)
 end
 
+function AZP.FishinNets:GetTimeLeft(curNet)
+    curStats = AZPTimeLeftSpamps[curNet.ID]
+    if curStats == nil or curStats.StartTime + curStats.TimeLeft < time() then
+        if InRightZone == true then 
+            curTimerInfo = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID)
+            if curTimerInfo ~= nil then
+                AZPTimeLeftSpamps[curNet.ID] = {StartTime = time(), TimeLeft = curTimerInfo.barValue}
+                return curTimerInfo.barValue
+            end
+        end
+    else
+        return curStats.TimeLeft - (time() - curStats.StartTime)
+    end
+
+    return nil
+end
+
 function AZP.FishinNets:CheckTimers()
     for curZoneID, curZone in pairs(AZP.FishinNets.NetLocations) do
         for curLocID, curLocation in pairs(curZone) do
             for _, curNet in pairs(curLocation) do
-                local curTimerInfo = nil
-                if InRightZone == true then
-                    curTimerInfo = C_UIWidgetManager.GetStatusBarWidgetVisualizationInfo(curNet.ID)
-                end
-                if curTimerInfo == nil then
+                local TimeLeft = AZP.FishinNets:GetTimeLeft(curNet)
+                if TimeLeft == nil then
                     local curStatusBar = AllStatusBars[curNet.ID]
                     curStatusBar:SetValue(0)
                     curStatusBar.Time:SetText("Data Unavailable")
                 else
-                    local TimeLeft = curTimerInfo.barValue
                     local curStatusBar = AllStatusBars[curNet.ID]
                     curStatusBar:SetValue(TimeLeft)
 
@@ -130,6 +143,9 @@ function AZP.FishinNets:OnUpdate(Elapsed)
 end
 
 function AZP.FishinNets:VarsAndAddOnLoaded()
+    if AZPTimeLeftSpamps == nil then
+        AZPTimeLeftSpamps = {}
+    end
     AZP.FishinNets:ZoneChanged()
     FishingNetFrame:SetScript("OnUpdate", function(_, ...) AZP.FishinNets:OnUpdate(...) end)
 end
@@ -145,6 +161,7 @@ function AZP.FishinNets:OnEvent(_, event, ...)
             end
         end
     elseif event == "VARIABLES_LOADED" then
+        
         if AddOnLoaded == true then
             AZP.FishinNets:VarsAndAddOnLoaded()
         else
