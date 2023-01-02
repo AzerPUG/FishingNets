@@ -20,7 +20,7 @@ function AZP.FishinNets.OnLoad()
 
     FishingNetFrameHeight = 30
     FishingNetFrame:SetSize(350, FishingNetFrameHeight)
-    FishingNetFrame:SetPoint("CENTER", 600, 450)
+    FishingNetFrame:SetPoint("CENTER", 600, 350)
     FishingNetFrame.TitleText:SetText(string.format("|cff00ffffAzerPUG's Fishing Nets - v%d|r", AZP.VersionControl["FishingNets"]))
 
     for curZoneID, curZone in pairs(AZP.FishinNets.NetLocations) do

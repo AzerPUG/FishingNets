@@ -6,7 +6,7 @@ AZP.FishinNets.ZoneNames =
     [2022] = "The Waking Shores",
     [2023] = "The Ohn'Arahn Plains",
     [2024] = "The Azure Span",
-    [2025] = "The Waking Shores",
+    [2025] = "Thaldraszus",
 }
 
 AZP.FishinNets.LocationNames =
@@ -21,7 +21,11 @@ AZP.FishinNets.LocationNames =
     },
     [2024] =
     {
-        [1] = "IceStuff",
+        [1] = "Grimtusk's Hideaway",
+    },
+    [2025] =
+    {
+        [1] = "Tyrhold",
     },
 }
 
@@ -49,6 +53,14 @@ AZP.FishinNets.NetLocations =
         {
             {Position = {X = 0.5873, Y = 0.3279}, SetID = 672, ID = 4364},
             --{Position = {X = 0.8048, Y = 0.7774}, SetID = 672, ID = 4389},
+        },
+    },
+    [2025] =
+    {
+        [1] =
+        {
+            {Position = {X = 0.5678, Y = 0.6518}, SetID = 672, ID = 4388},
+            {Position = {X = 0.5775, Y = 0.6550}, SetID = 672, ID = 4398},
         },
     },
 }
